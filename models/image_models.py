@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Date, String, Uuid
+from sqlalchemy import Boolean, Column, Date, String, Uuid
 from ..database.connection import Base
 
 
@@ -7,6 +7,6 @@ class Image(Base):
 
     id = Column(Uuid, primary_key=True, index=True)
     img_url = Column(String, nullable=False)
-    description = Column(String, nullable=True)
     created_at = Column(Date, nullable=False)
-
+    used = Column(Boolean, nullable=False)
+    name = Column(String, nullable=False)

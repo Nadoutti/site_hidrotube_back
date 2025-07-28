@@ -10,8 +10,17 @@ async def get_all_images() -> list:
     
     return images
 
-async def get_used_slides():
-    """
-    Get used slides.
-    """
-    return {"message": "Get used slides"}
+async def get_used_slides() -> list:
+
+    used_images = await slide_repo.get_used_images()
+
+    if not used_images:
+        return []
+    
+    return used_images
+
+async def add_slide(file):
+
+    response = await slide_repo.add_slide(file)
+
+    return response
