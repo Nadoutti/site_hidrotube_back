@@ -1,12 +1,14 @@
-from sqlalchemy import Boolean, Column, Date, String, Uuid
-from ..database.connection import Base
+from sqlalchemy import Boolean, Date, String, Uuid, null
+from sqlalchemy.orm import Mapped, MappedColumn, mapped_column
+from database.connection import Base
 
 
 class Image(Base):
     __tablename__ = "slide_show"
 
-    id = Column(Uuid, primary_key=True, index=True)
-    img_url = Column(String, nullable=False)
-    created_at = Column(Date, nullable=False)
-    used = Column(Boolean, nullable=False)
-    name = Column(String, nullable=False)
+    id: Mapped[str] = mapped_column(Uuid, nullable=False, primary_key=True, index=True)
+    img_url: Mapped[str] = mapped_column(String, nullable=False)
+    created_at: Mapped[str] = mapped_column(Date, nullable=False)
+    used: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    name: Mapped[str] = mapped_column(String, nullable=False)
+

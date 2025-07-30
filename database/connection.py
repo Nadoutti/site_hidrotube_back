@@ -4,8 +4,6 @@ from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 import os
 # from sqlalchemy.pool import NullPool
-from dotenv import load_dotenv
-import os
 
 # Load environment variables from .env
 load_dotenv()
@@ -18,7 +16,8 @@ PORT = os.getenv("port")
 DBNAME = os.getenv("dbname")
 
 # Construct the SQLAlchemy connection string
-DATABASE_URL = f"postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}:{PORT}/{DBNAME}?sslmode=require"
+# DATABASE_URL = f"postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}:{PORT}/{DBNAME}?sslmode=require"
+DATABASE_URL ="postgresql://postgres:nadottins2005@db.qpgtqtgysrctqisorwxv.supabase.co:5432/postgres"
 
 # Create the SQLAlchemy engine
 engine = create_engine(DATABASE_URL)

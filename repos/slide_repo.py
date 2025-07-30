@@ -1,8 +1,8 @@
+from sqlalchemy import String
 from sqlalchemy.orm import Session
 from datetime import datetime
 from models.image_models import Image
 from database.connection import get_db
-from fastapi import Depends
 from database.supabase_connection import supabase
 import uuid
 
@@ -11,7 +11,7 @@ import uuid
 
 # get all slides from the database
 
-async def get_all_images(db: Session = Depends(get_db)) -> list[Image] | None:
+async def get_all_images(db: Session) -> list[Image] | None:
     images = db.query(Image).all()
     if not images:
         return None
@@ -19,7 +19,7 @@ async def get_all_images(db: Session = Depends(get_db)) -> list[Image] | None:
     return images
 
 
-async def get_used_images(db: Session = Depends(get_db)) -> list[Image] | None:
+async def get_used_images(db: Session) -> list[Image] | None:
 
     used_images = db.query(Image).filter(Image.used == True).all()
 
@@ -28,13 +28,13 @@ async def get_used_images(db: Session = Depends(get_db)) -> list[Image] | None:
 
     return used_images
 
-async def add_slide(file, db: Session = Depends(get_db)):
+async def add_slide(file, db: Session):
 
     contents = await file.read()
     filename = f"{uuid.uuid4()}_{file.filename}"
 
-    res = supabase.storage.from_('images/slides').upload(
-        path=filename,
+    res = supabase.storage.from_('images').upload(
+        path=f"slides/{ filename }",
         file=contents,
         file_options={"content-type": file.content_type},
     )
@@ -44,7 +44,7 @@ async def add_slide(file, db: Session = Depends(get_db)):
 
     public_url = supabase.storage.from_('nome-do-seu-bucket').get_public_url(filename)
 
-    new_image = Image(created_at=datetime.now(), img_url=public_url, used=False, name=filename)
+    new_image = Image(id=uuid.uuid4(), created_at=datetime.now(), img_url=public_url, used=False, name=filename)
 
     db.add(new_image)
     db.commit()
@@ -56,3 +56,25 @@ async def add_slide(file, db: Session = Depends(get_db)):
 
 
     return {"message": f"Imagem adicionada com sucesso!"}
+
+
+async def selec_slides(img_ids: list[str], db: Session):
+    count = 0
+
+    for id in img_ids:
+        image = db.query(Image).filter(Image.id == id).first()
+
+
+        if not image:
+            continue
+        
+        image.used = True
+        count += 1
+
+
+    db.commit()
+
+    if count == len(img_ids):
+        return {"message": "imagens atualizadas!"}
+    return {"message": f"nao foi possivel atualizar todas as imagens: {count}"}
+
