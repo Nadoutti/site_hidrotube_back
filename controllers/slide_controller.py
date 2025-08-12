@@ -32,12 +32,12 @@ async def add_slide(file, db: Session):
 
     return response
 
-async def selec_slides(img_ids, db: Session):
+async def selec_slides(img_id, db: Session):
 
-    if len( img_ids ) == 0:
-        return {"message": "Voce precisa selecionar os slides para poder salvar"}
 
-    response = await slide_service.selec_slides(img_ids, db)
+    response = await slide_service.selec_slides(img_id, db)
+    if not response:
+        raise HTTPException(status_code=400, detail="Deu problema ein")
     return response
 
 

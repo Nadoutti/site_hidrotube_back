@@ -1,7 +1,9 @@
+from typing import List
 from fastapi import APIRouter, HTTPException, UploadFile, File, Depends
 from sqlalchemy.orm import Session
 from controllers import slide_controller
 from database.connection import get_db
+from models.image_schemas import ImageSchema
 
 
 router = APIRouter(prefix="/slides", tags=["slides"])
@@ -12,7 +14,7 @@ router = APIRouter(prefix="/slides", tags=["slides"])
 
 # get
 
-@router.get("/")
+@router.get("/", response_model=List[ ImageSchema ])
 async def get_all_images(db: Session = Depends(get_db)) -> list | dict:
     
     images = await slide_controller.get_all_images(db)
@@ -39,6 +41,6 @@ async def add_slides(file: UploadFile = File(...), db: Session = Depends(get_db)
 
 # selecionar_slides
 @router.put("/selecionar")
-async def selecionar_slides(img_ids: list[str], db: Session = Depends(get_db)):
-    response = await slide_controller.selec_slides(img_ids, db)
+async def selecionar_slides(img: str, db: Session = Depends(get_db)):
+    response = await slide_controller.selec_slides(img, db)
     return response

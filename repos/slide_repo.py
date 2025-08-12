@@ -42,7 +42,7 @@ async def add_slide(file, db: Session):
     if not res:
         return None
 
-    public_url = supabase.storage.from_('nome-do-seu-bucket').get_public_url(filename)
+    public_url = supabase.storage.from_('images/slides').get_public_url(filename)
 
     new_image = Image(id=uuid.uuid4(), created_at=datetime.now(), img_url=public_url, used=False, name=filename)
 
@@ -58,23 +58,20 @@ async def add_slide(file, db: Session):
     return {"message": f"Imagem adicionada com sucesso!"}
 
 
-async def selec_slides(img_ids: list[str], db: Session):
+async def selec_slides(img_id, db: Session):
     count = 0
 
-    for id in img_ids:
-        image = db.query(Image).filter(Image.id == id).first()
+    image = db.query(Image).filter(Image.id == img_id).first()
 
+    if not image:
+        return None
+    
+    print(image.id)
 
-        if not image:
-            continue
-        
-        image.used = True
-        count += 1
-
+    image.used = True
+    print(image.used)
 
     db.commit()
 
-    if count == len(img_ids):
-        return {"message": "imagens atualizadas!"}
     return {"message": f"nao foi possivel atualizar todas as imagens: {count}"}
 
