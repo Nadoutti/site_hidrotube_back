@@ -1,3 +1,4 @@
 fastapi["standard"]
 SQLalchemy
+supabase
 python-dotenv

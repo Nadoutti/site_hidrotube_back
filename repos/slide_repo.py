@@ -28,6 +28,7 @@ async def get_used_images(db: Session) -> list[Image] | None:
 
     return used_images
 
+
 async def add_slide(file, db: Session):
 
     contents = await file.read()
