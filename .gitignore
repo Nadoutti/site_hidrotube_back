@@ -1,4 +1,82 @@
-/venv
-.env
-/__pycache__
+# ====================================
+# Python / FastAPI
+# ====================================
 
+# Bytecode / cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pkl
+*.egg-info/
+*.eggs/
+
+# Virtual envs
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Logs e dumps
+*.log
+*.out
+*.pid
+*.seed
+*.csv
+*.dat
+*.db
+*.sqlite3
+
+# Arquivos temporários
+*.bak
+*.swp
+*.swo
+*.tmp
+*.temp
+
+# Configs locais
+*.ini
+*.toml
+*.yaml
+*.yml
+*.json
+*.lock
+
+# Credenciais
+.env.local
+.env.*.local
+.envrc
+
+# IDE / Editor
+.vscode/
+.idea/
+*.iml
+
+# PyInstaller
+*.spec
+build/
+dist/
+
+# Testes
+.coverage
+coverage.xml
+htmlcov/
+.tox/
+pytest_cache/
+
+# Docker
+*.pid
+*.seed
+docker-compose.override.yml
+
+# FastAPI / Uvicorn
+*.db-journal
+*.sqlite-shm
+*.sqlite-wal
+
+# Cache geral
+.cache/
+.mypy_cache/
+.pytest_cache/
+.dmypy.json

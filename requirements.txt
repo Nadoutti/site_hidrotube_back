@@ -1,4 +1,14 @@
-fastapi["standard"]
-SQLalchemy
-supabase
-python-dotenv
+# FastAPI + stack padrão (inclui uvicorn[standard], python-multipart etc.)
+fastapi[standard]>=0.110,<1.0
+
+# ORM
+SQLAlchemy>=2.0
+
+# Postgres (binário facilita em dev; em produção prefira psycopg2 + libpq)
+psycopg2-binary>=2.9
+
+# Variáveis de ambiente
+python-dotenv>=1.0
+
+# Supabase SDK
+supabase>=2.0
