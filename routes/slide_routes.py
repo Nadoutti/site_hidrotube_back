@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException, UploadFile, File, Depends
 from sqlalchemy.orm import Session
 from controllers import slide_controller
 from database.connection import get_db
-from models.image_schemas import ImageSchema
+from schemas.image_schemas import ImageSchema
 
 
 router = APIRouter(prefix="/slides", tags=["slides"])
