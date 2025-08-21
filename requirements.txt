@@ -11,6 +11,6 @@ psycopg2-binary>=2.9
 python-dotenv>=1.0
 
 # Supabase SDK
-supabase>=2.
+supabase
 
 psycopg[binary]>=3.1  # remove o psycopg2-binary se estiver instalado
