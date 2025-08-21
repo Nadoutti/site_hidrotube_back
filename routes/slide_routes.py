@@ -40,7 +40,7 @@ async def add_slides(file: UploadFile = File(...), db: Session = Depends(get_db)
     return response
 
 # selecionar_slides
-@router.put("/selecionar")
+@router.put("/{img}/selecionar")
 async def selecionar_slides(img: str, db: Session = Depends(get_db)):
     response = await slide_controller.selec_slides(img, db)
     return response

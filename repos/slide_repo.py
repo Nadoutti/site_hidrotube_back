@@ -69,8 +69,12 @@ async def selec_slides(img_id, db: Session):
     
     print(image.id)
 
-    image.used = True
-    print(image.used)
+    if image.used == True:
+        image.used = False
+    
+    else:
+        image.used = True
+    
 
     db.commit()
 
