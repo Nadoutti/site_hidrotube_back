@@ -17,7 +17,7 @@ async def get_used_slides() -> list[ImageSchema]:
 @router.post("/")
 async def add_slides(file: UploadFile = File(...)):
     return await slide_controller.add_slide(file)
-
+  
 @router.put("/selecionar")
 async def selecionar_slides(img_id: UUID = Query(...)):
     return await slide_controller.select_slides(img_id)

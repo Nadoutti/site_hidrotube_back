@@ -4,7 +4,7 @@ from pathlib import Path
 from uuid import uuid4, UUID
 from typing import Optional, List, Dict
 
-# ⚠️ Importa a FUNÇÃO, renomeando para evitar confusão de nomes
+# Importa a FUNÇÃO, renomeando para evitar confusão de nomes
 from database.supabase_connection import supabase as supabase_factory
 
 TABLE = "slide_show"     # sua tabela no Supabase
@@ -65,7 +65,6 @@ async def add_slide(file) -> Optional[Dict]:
         # (Opcional) rollback do arquivo subido:
         # sb.storage.from_(BUCKET).remove([storage_path])
         return None
-
     return {"message": "Imagem adicionada com sucesso!", "id": row_id, "url": public_url}
 
 async def select_slides(img_id: UUID) -> bool:
