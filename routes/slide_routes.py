@@ -1,46 +1,23 @@
 from typing import List
-from fastapi import APIRouter, HTTPException, UploadFile, File, Depends
-from sqlalchemy.orm import Session
+from uuid import UUID
+from fastapi import APIRouter, HTTPException, UploadFile, File, Query
 from controllers import slide_controller
-from database.connection import get_db
-from models.image_schemas import ImageSchema
-
+from schemas.image_schemas import ImageSchema
 
 router = APIRouter(prefix="/slides", tags=["slides"])
 
+@router.get("/", response_model=List[ImageSchema])
+async def get_all_images() -> list[ImageSchema]:
+    return await slide_controller.get_all_images()
 
-# slides routes here
+@router.get("/used", response_model=List[ImageSchema])
+async def get_used_slides() -> list[ImageSchema]:
+    return await slide_controller.get_used_slides()
 
-
-# get
-
-@router.get("/", response_model=List[ ImageSchema ])
-async def get_all_images(db: Session = Depends(get_db)) -> list | dict:
-    
-    images = await slide_controller.get_all_images(db)
-    if not images:
-        raise HTTPException(status_code=404, detail="Imagens nao encontradas")
-    return images
-
-# get the used ones
-
-@router.get("/used")
-async def get_used_slides(db: Session = Depends(get_db)):
-    used_images = await slide_controller.get_used_slides(db)
-    if not used_images:
-        raise HTTPException(status_code=404, detail="Imagens nao encontradas")
-    return 
-
-
-# adicionar slides
 @router.post("/")
-async def add_slides(file: UploadFile = File(...), db: Session = Depends(get_db)):
-    response = await slide_controller.add_slide(file, db)
-
-    return response
-
-# selecionar_slides
-@router.put("/{img}/selecionar")
-async def selecionar_slides(img: str, db: Session = Depends(get_db)):
-    response = await slide_controller.selec_slides(img, db)
-    return response
+async def add_slides(file: UploadFile = File(...)):
+    return await slide_controller.add_slide(file)
+  
+@router.put("/selecionar")
+async def selecionar_slides(img_id: UUID = Query(...)):
+    return await slide_controller.select_slides(img_id)

@@ -1,36 +1,33 @@
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-from dotenv import load_dotenv
+# database/supabase_connection.py
 import os
-# from sqlalchemy.pool import NullPool
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, declarative_base
+from dotenv import load_dotenv
 
-# Load environment variables from .env
 load_dotenv()
 
-# Fetch variables
-USER = os.getenv("user")
+USER = os.getenv("user", "postgres")
 PASSWORD = os.getenv("password")
 HOST = os.getenv("host")
-PORT = os.getenv("port")
-DBNAME = os.getenv("dbname")
+PORT = int(os.getenv("port", "5432"))
+DBNAME = os.getenv("dbname", "postgres")
 
-# Construct the SQLAlchemy connection string
-# DATABASE_URL = f"postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}:{PORT}/{DBNAME}?sslmode=require"
-DATABASE_URL ="postgresql://postgres:nadottins2005@db.qpgtqtgysrctqisorwxv.supabase.co:5432/postgres"
+# 👇 psycopg v3 + SSL + forçar IPv4 (gai_family=inet)
+DATABASE_URL = (
+    f"postgresql+psycopg://{USER}:{PASSWORD}@{HOST}:{PORT}/{DBNAME}"
+    f"?sslmode=require&gai_family=inet"
+)
 
-# Create the SQLAlchemy engine
-engine = create_engine(DATABASE_URL)
-
+engine = create_engine(
+    DATABASE_URL,
+    pool_pre_ping=True,
+)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
 Base = declarative_base()
 
 def get_db():
-    """Create a new database session."""
     db = SessionLocal()
     try:
         yield db
     finally:
-        db.close()  # Ensure the session is closed after use
-
+        db.close()

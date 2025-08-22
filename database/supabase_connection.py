@@ -1,6 +1,15 @@
-from supabase import create_client
+import os
+from supabase import create_client, Client
+from dotenv import load_dotenv
 
-SUPABASE_URL = "https://qpgtqtgysrctqisorwxv.supabase.co"
-SUPABASE_KEY = "sb_secret_cX_9D-4tszosM3y0t6WSxA_w8oNWg6e"
+load_dotenv()
 
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
+if not SUPABASE_URL or not SUPABASE_KEY:
+    raise RuntimeError("Defina SUPABASE_URL e SUPABASE_SERVICE_ROLE/ANON_KEY.")
+
+def supabase() -> Client:
+    # 👇 ATENÇÃO: é para **retornar** o client; não chame como função depois.
+    return create_client(SUPABASE_URL, SUPABASE_KEY)

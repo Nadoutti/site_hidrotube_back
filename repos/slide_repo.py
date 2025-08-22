@@ -1,82 +1,73 @@
-from sqlalchemy import String
-from sqlalchemy.orm import Session
-from datetime import datetime
-from models.image_models import Image
-from database.connection import get_db
-from database.supabase_connection import supabase
-import uuid
+# repos/slide_repo.py
+from datetime import datetime, timezone
+from pathlib import Path
+from uuid import uuid4, UUID
+from typing import Optional, List, Dict
 
+# Importa a FUNÇÃO, renomeando para evitar confusão de nomes
+from database.supabase_connection import supabase as supabase_factory
 
-# Repo functions here
+TABLE = "slide_show"     # sua tabela no Supabase
+BUCKET = "images"    # seu bucket no Storage
+FOLDER = "slides"    # pasta dentro do bucket
 
-# get all slides from the database
+def _sb():
+    # Sempre que precisar, pega o client chamando a função
+    return supabase_factory()
 
-async def get_all_images(db: Session) -> list[Image] | None:
-    images = db.query(Image).all()
-    if not images:
-        return None
+def _now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
 
-    return images
+async def get_all_images() -> Optional[List[Dict]]:
+    sb = _sb()
+    res = sb.table(TABLE).select("*").order("created_at", desc=True).execute()
+    data = res.data or []
+    return data or None
 
+async def get_used_images() -> Optional[List[Dict]]:
+    sb = _sb()
+    res = sb.table(TABLE).select("*").eq("used", True).order("created_at", desc=True).execute()
+    data = res.data or []
+    return data or None
 
-async def get_used_images(db: Session) -> list[Image] | None:
+async def add_slide(file) -> Optional[Dict]:
+    sb = _sb()
 
-    used_images = db.query(Image).filter(Image.used == True).all()
+    contents: bytes = await file.read()
+    ext = Path(file.filename).suffix.lower()  # mantém .png/.jpg etc
+    filename = f"{uuid4()}{ext}"
+    storage_path = f"{FOLDER}/{filename}"
 
-    if not used_images:
-        return None
-
-    return used_images
-
-
-async def add_slide(file, db: Session):
-
-    contents = await file.read()
-    filename = f"{uuid.uuid4()}_{file.filename}"
-
-    res = supabase.storage.from_('images').upload(
-        path=f"slides/{ filename }",
+    # Upload no Storage (bucket 'images', caminho 'slides/<uuid>.<ext>')
+    up = sb.storage.from_(BUCKET).upload(
+        path=storage_path,
         file=contents,
         file_options={"content-type": file.content_type},
     )
 
-    if not res:
+    # Trata erro de forma defensiva (dependendo da versão pode vir dict)
+    if not up or (isinstance(up, dict) and up.get("error")):
         return None
 
-    public_url = supabase.storage.from_('images/slides').get_public_url(filename)
+    public_url = sb.storage.from_(BUCKET).get_public_url(storage_path)
 
-    new_image = Image(id=uuid.uuid4(), created_at=datetime.now(), img_url=public_url, used=False, name=filename)
+    row_id = str(uuid4())
+    new_row = {
+        "id": row_id,
+        "name": filename,
+        "img_url": public_url,
+        "used": False,
+        "created_at": _now_iso(),
+    }
 
-    db.add(new_image)
-    db.commit()
-
-    added_image = db.query(Image).filter(Image.name == filename).first()
-
-    if not added_image:
-        return {"error": f"Não foi ṕossivel adicionara aimagem {filename}"}
-
-
-    return {"message": f"Imagem adicionada com sucesso!"}
-
-
-async def selec_slides(img_id, db: Session):
-    count = 0
-
-    image = db.query(Image).filter(Image.id == img_id).first()
-
-    if not image:
+    ins = sb.table(TABLE).insert(new_row).execute()
+    if not ins.data:
+        # (Opcional) rollback do arquivo subido:
+        # sb.storage.from_(BUCKET).remove([storage_path])
         return None
-    
-    print(image.id)
+    return {"message": "Imagem adicionada com sucesso!", "id": row_id, "url": public_url}
 
-    if image.used == True:
-        image.used = False
-    
-    else:
-        image.used = True
-    
-
-    db.commit()
-
-    return {"message": f"nao foi possivel atualizar todas as imagens: {count}"}
-
+async def select_slides(img_id: UUID) -> bool:
+    sb = _sb()
+    upd = sb.table(TABLE).update({"used": True}).eq("id", str(img_id)).execute()
+    return bool(upd.data)
